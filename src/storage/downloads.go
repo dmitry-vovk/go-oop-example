@@ -11,15 +11,15 @@ import (
 )
 
 var (
-	UrlPrefix   string
-	StoragePath string
+	UrlPrefix   string // Part of url to remove to get clean file name
+	StoragePath string // Where files are located in filesystem
 )
 
 func FileDownload(w http.ResponseWriter, r *http.Request) {
-	remoteIp := getRemoteIpFromRequest(r)
-	fName := getFileName(r)
+	var fileName string = getFileName(r)
 	var start time.Time = time.Now()
-	var fullFileName = StoragePath + fName
+	var fullFileName = StoragePath + fileName
+	var remoteIp string = getRemoteIpFromRequest(r)
 	// Check if file exists
 	if _, err := os.Stat(fullFileName); os.IsNotExist(err) {
 		w.WriteHeader(http.StatusNotFound)
@@ -28,25 +28,23 @@ func FileDownload(w http.ResponseWriter, r *http.Request) {
 	}
 	// Create new CountingWriter
 	cw := NewCountingWriter(w)
-	cw.File = fName
+	cw.File = fileName
 	cw.Ip = remoteIp.String()
 	cw.Start = start.Unix()
-	log.Printf("Starting delivery to %s file \"%s\"", remoteIp, StoragePath+fName)
+	log.Printf("Starting delivery to %s file \"%s\"", remoteIp, fullFileName)
 	// Register download start
 	SessionsChannel <- cw
-	// Perform download using out CountingWriter
-	http.ServeFile(cw, r, StoragePath+fName)
+	// Perform download using our CountingWriter
+	http.ServeFile(cw, r, fullFileName)
 	// Register download end
 	SessionsChannel <- cw
-	if cw.Count != 0 {
-		log.Printf(
-			"Download complete. %d bytes delivered in %f seconds to %s as %s",
-			cw.Count,
-			time.Since(start).Seconds(),
-			remoteIp,
-			fName,
-		)
-	}
+	log.Printf(
+		"Download complete. %d bytes delivered in %f seconds to %s as %s",
+		cw.Count,
+		time.Since(start).Seconds(),
+		remoteIp,
+		fileName,
+	)
 }
 
 func getRemoteIpFromRequest(r *http.Request) net.IP {
