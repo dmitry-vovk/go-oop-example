@@ -20,3 +20,5 @@ While the file is downloaded, open new tab and navigate to http://localhost/sess
 }
 ```
 Refreshing the page will give you increasing bytes count as your file is being downloaded.
+
+PS: This stuff is prepared for my presentation at [Kyiv Go Meetup](http://www.meetup.com/uagolang/events/188657172/).
