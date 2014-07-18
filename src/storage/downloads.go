@@ -19,7 +19,7 @@ func FileDownload(w http.ResponseWriter, r *http.Request) {
 	var fileName string = getFileName(r)
 	var start time.Time = time.Now()
 	var fullFileName = StoragePath + fileName
-	var remoteIp string = getRemoteIpFromRequest(r)
+	remoteIp := getRemoteIpFromRequest(r)
 	// Check if file exists
 	if _, err := os.Stat(fullFileName); os.IsNotExist(err) {
 		w.WriteHeader(http.StatusNotFound)
