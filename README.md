@@ -19,3 +19,4 @@ While the file is downloaded, open new tab and navigate to http://localhost/sess
   ]
 }
 ```
+Refreshing the page will give you increasing bytes count as your file is being downloaded.
